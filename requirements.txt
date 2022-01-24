@@ -1,0 +1,11 @@
+certifi==2021.10.8
+cffi==1.15.0
+charset-normalizer==2.0.10
+cryptography==36.0.1
+idna==3.3
+pycparser==2.21
+pyotp==2.6.0
+python-dotenv==0.19.2
+requests==2.27.1
+robin-stocks @ git+https://github.com/jmfernandes/robin_stocks.git@8359444cb75e050662520aebef8a9c1bdb26bf1c
+urllib3==1.26.8
