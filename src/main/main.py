@@ -85,7 +85,7 @@ def crypto_trading_logic(symbol):
         closeness_to_lowest_trade = ((float(
             lowest_outstanding_lot['cost']) - current_ask_price) / float(
             lowest_outstanding_lot['cost'])) * 100
-    if (percentage_dip > VOLATILITY_PERCENTAGE and
+    if (percentage_dip > CLOSENESS_PERCENTAGE and
             (not lowest_outstanding_lot or
              (float(lowest_outstanding_lot['cost']) > current_ask_price and
               closeness_to_lowest_trade > CLOSENESS_PERCENTAGE)) and
@@ -147,7 +147,6 @@ def crypto_trading_logic(symbol):
 
         filled = False
         canceled = False
-        filled_sell_order = {}
         retries = 0
         while not filled and not canceled:
             filled_sell_order = r.get_crypto_order_info(placed_sell_order['id'])
@@ -178,8 +177,7 @@ def find_trading_quantity():
 
 
 def login_to_robinhood(email, password):
-    data = r.login(username=email, password=password, store_session=True)
-    # print(data)
+    r.login(username=email, password=password, store_session=True)
 
 
 def print_state():
