@@ -9,10 +9,10 @@ from collections import defaultdict
 
 from robin_stocks import robinhood as r
 
-MAX_RETRIES = 1000
-TRADE_LIMIT_PRICE = 5.0
-VOLATILITY_PERCENTAGE = 5
-CLOSENESS_PERCENTAGE = 3
+MAX_RETRIES = 100
+TRADE_LIMIT_PRICE = 7.0
+VOLATILITY_PERCENTAGE = 2.5
+CLOSENESS_PERCENTAGE = 2.5
 HIGH_HISTORICAL_WINDOW = 24
 NO_OF_OUTSTANDING_TRADES = 10
 CRYPTO_LIST = ["BCH", "BSV", "BTC", "DOGE", "ETH", "ETC", "LTC"]
@@ -114,7 +114,7 @@ def crypto_trading_logic(symbol):
             if retries % MAX_RETRIES == 0:
                 print("Buy:", symbol, "Current quote", r.get_crypto_quote(symbol))
                 canceled_buy_order = r.cancel_crypto_order(placed_buy_order['id'])
-                print("Buy:", symbol, "100s passed and the limit buy order still did not execute. Canceling!",
+                print("Buy:", symbol, "10s passed and the limit buy order still did not execute. Canceling!",
                       canceled_buy_order)
                 canceled = True
 
@@ -158,7 +158,7 @@ def crypto_trading_logic(symbol):
             if retries % MAX_RETRIES == 0:
                 print("Sell:", symbol, "Current quote", r.get_crypto_quote(symbol))
                 canceled_sell_order = r.cancel_crypto_order(placed_sell_order['id'])
-                print("Sell:", symbol, "100s passed and the limit sell order still did not execute. Canceling!",
+                print("Sell:", symbol, "10s passed and the limit sell order still did not execute. Canceling!",
                       canceled_sell_order)
                 canceled = True
 
@@ -177,7 +177,7 @@ def find_trading_quantity():
 
 
 def login_to_robinhood(email, password):
-    r.login(username=email, password=password, store_session=True)
+    r.login(username=email, password=password, store_session=True, pickle_name="aarthika")
 
 
 def print_state():
