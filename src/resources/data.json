@@ -193,3 +193,79 @@ Initial state: Outstanding trades for LTC is 0
 
 
 
+
+
+
+
+
+
+Traceback (most recent call last):
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/venv/lib/python3.9/site-packages/urllib3/connection.py", line 174, in _new_conn
+    conn = connection.create_connection(
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/venv/lib/python3.9/site-packages/urllib3/util/connection.py", line 72, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+  File "/opt/homebrew/Cellar/python@3.9/3.9.10/Frameworks/Python.framework/Versions/3.9/lib/python3.9/socket.py", line 954, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+socket.gaierror: [Errno 8] nodename nor servname provided, or not known
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/venv/lib/python3.9/site-packages/urllib3/connectionpool.py", line 703, in urlopen
+    httplib_response = self._make_request(
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/venv/lib/python3.9/site-packages/urllib3/connectionpool.py", line 386, in _make_request
+    self._validate_conn(conn)
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/venv/lib/python3.9/site-packages/urllib3/connectionpool.py", line 1040, in _validate_conn
+    conn.connect()
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/venv/lib/python3.9/site-packages/urllib3/connection.py", line 358, in connect
+    conn = self._new_conn()
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/venv/lib/python3.9/site-packages/urllib3/connection.py", line 186, in _new_conn
+    raise NewConnectionError(
+urllib3.exceptions.NewConnectionError: <urllib3.connection.HTTPSConnection object at 0x102479730>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/venv/lib/python3.9/site-packages/requests/adapters.py", line 440, in send
+    resp = conn.urlopen(
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/venv/lib/python3.9/site-packages/urllib3/connectionpool.py", line 785, in urlopen
+    retries = retries.increment(
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/venv/lib/python3.9/site-packages/urllib3/util/retry.py", line 592, in increment
+    raise MaxRetryError(_pool, url, error or ResponseError(cause))
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='nummus.robinhood.com', port=443): Max retries exceeded with url: /currency_pairs/ (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x102479730>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known'))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/src/main/main.py", line 219, in <module>
+    crypto_trading_logic(crypto)
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/src/main/main.py", line 169, in crypto_trading_logic
+    current_quote = r.get_crypto_quote(symbol)
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/venv/lib/python3.9/site-packages/robin_stocks/robinhood/helper.py", line 33, in login_wrapper
+    return(func(*args, **kwargs))
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/venv/lib/python3.9/site-packages/robin_stocks/robinhood/crypto.py", line 150, in get_crypto_quote
+    id = get_crypto_info(symbol, info='id')
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/venv/lib/python3.9/site-packages/robin_stocks/robinhood/crypto.py", line 102, in get_crypto_info
+    data = request_get(url, 'results')
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/venv/lib/python3.9/site-packages/robin_stocks/robinhood/helper.py", line 275, in request_get
+    res = SESSION.get(url, params=payload)
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/venv/lib/python3.9/site-packages/requests/sessions.py", line 542, in get
+    return self.request('GET', url, **kwargs)
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/venv/lib/python3.9/site-packages/requests/sessions.py", line 529, in request
+    resp = self.send(prep, **send_kwargs)
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/venv/lib/python3.9/site-packages/requests/sessions.py", line 645, in send
+    r = adapter.send(request, **kwargs)
+  File "/Users/deepakdasarathan/Development/crypto_autolas_kabali/venv/lib/python3.9/site-packages/requests/adapters.py", line 519, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='nummus.robinhood.com', port=443): Max retries exceeded with url: /currency_pairs/ (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x102479730>: Failed to establish a new connection: [Errno 8] nodename nor servname provided, or not known'))
+
+
+
+Position [
+{'account_id': '61eb82c8-1307-424d-921f-0a2924b36889', 'cost_bases': [{'currency_id': '1072fc76-1862-41ab-82c2-485837590762', 'direct_cost_basis': '16.763035080682193503', 'direct_quantity': '0.155314000000000000', 'id': '61ee3dcd-c1e0-4e5d-aa36-a9699be69a89', 'intraday_cost_basis': '9.493114620684600000', 'intraday_quantity': '0.088014000000000000', 'marked_cost_basis': '0.000000000000000000', 'marked_quantity': '0.000000000000000000'}], 'created_at': '2022-01-24T00:49:01.626244-05:00', 'currency': {'brand_color': 'BEBBBB', 'code': 'LTC', 'id': 'f9432751-b54d-4d84-b573-f06dc390b766', 'increment': '0.000000010000000000', 'name': 'Litecoin', 'type': 'cryptocurrency'}, 'id': '61ee3dcd-f3a2-489b-b909-2c5e6f3e2676', 'quantity': '0.155314000000000000', 'quantity_available': '0.155314000000000000', 'quantity_held_for_buy': '0.000000000000000000', 'quantity_held_for_sell': '0.000000000000000000', 'updated_at': '2022-01-30T21:01:13.301448-05:00'},
+{'account_id': '61eb82c8-1307-424d-921f-0a2924b36889', 'cost_bases': [{'currency_id': '1072fc76-1862-41ab-82c2-485837590762', 'direct_cost_basis': '8.520000000000000000', 'direct_quantity': '0.000226000000000000', 'id': '61ee3dc6-58e4-4cb8-b777-4513f40c6467', 'intraday_cost_basis': '8.514984108210300000', 'intraday_quantity': '0.000226000000000000', 'marked_cost_basis': '0.000000000000000000', 'marked_quantity': '0.000000000000000000'}], 'created_at': '2022-01-24T00:48:54.302803-05:00', 'currency': {'brand_color': 'EA963D', 'code': 'BTC', 'id': 'd674efea-e623-4396-9026-39574b92b093', 'increment': '0.000000010000000000', 'name': 'Bitcoin', 'type': 'cryptocurrency'}, 'id': '61ee3dc6-5b48-4e41-8700-4bd869961bd8', 'quantity': '0.000226000000000000', 'quantity_available': '0.000226000000000000', 'quantity_held_for_buy': '0.000000000000000000', 'quantity_held_for_sell': '0.000000000000000000', 'updated_at': '2022-01-30T19:58:17.406677-05:00'},
+{'account_id': '61eb82c8-1307-424d-921f-0a2924b36889', 'cost_bases': [{'currency_id': '1072fc76-1862-41ab-82c2-485837590762', 'direct_cost_basis': '23.176465495419222473', 'direct_quantity': '0.079930000000000000', 'id': '61edaf23-ba69-4311-ab44-97bda4956a3a', 'intraday_cost_basis': '23.678014000000000000', 'intraday_quantity': '0.080630000000000000', 'marked_cost_basis': '0.000000000000000000', 'marked_quantity': '0.000000000000000000'}], 'created_at': '2022-01-23T14:40:19.386723-05:00', 'currency': {'brand_color': '99C061', 'code': 'BCH', 'id': '913a38ed-36f3-45fb-a967-fb6e30d4a7fb', 'increment': '0.000000010000000000', 'name': 'Bitcoin Cash', 'type': 'cryptocurrency'}, 'id': '61edaf23-fd62-4a33-8870-a4a93459b5ed', 'quantity': '0.079930000000000000', 'quantity_available': '0.079930000000000000', 'quantity_held_for_buy': '0.000000000000000000', 'quantity_held_for_sell': '0.000000000000000000', 'updated_at': '2022-01-30T19:56:00.959784-05:00'},
+{'account_id': '61eb82c8-1307-424d-921f-0a2924b36889', 'cost_bases': [{'currency_id': '1072fc76-1862-41ab-82c2-485837590762', 'direct_cost_basis': '15.697436146190570914', 'direct_quantity': '0.643800000000000000', 'id': '61eda498-ba10-4867-a756-9b9c68ce184a', 'intraday_cost_basis': '8.499765000000000000', 'intraday_quantity': '0.346500000000000000', 'marked_cost_basis': '0.000000000000000000', 'marked_quantity': '0.000000000000000000'}], 'created_at': '2022-01-23T13:55:20.327315-05:00', 'currency': {'brand_color': '', 'code': 'ETC', 'id': 'ee3bcf3e-4ac7-4f0a-b887-4cea2b49ff70', 'increment': '0.000001000000000000', 'name': 'Ethereum Classic', 'type': 'cryptocurrency'}, 'id': '61eda498-f989-4882-aa38-c5014b041a73', 'quantity': '0.643800000000000000', 'quantity_available': '0.643800000000000000', 'quantity_held_for_buy': '0.000000000000000000', 'quantity_held_for_sell': '0.000000000000000000', 'updated_at': '2022-01-30T20:14:45.330959-05:00'},
+{'account_id': '61eb82c8-1307-424d-921f-0a2924b36889', 'cost_bases': [{'currency_id': '1072fc76-1862-41ab-82c2-485837590762', 'direct_cost_basis': '9.024774941896550571', 'direct_quantity': '0.003672000000000000', 'id': '61eda31b-63a1-44c1-84af-5f11bb621713', 'intraday_cost_basis': '1.997657010000000000', 'intraday_quantity': '0.000791000000000000', 'marked_cost_basis': '0.000000000000000000', 'marked_quantity': '0.000000000000000000'}], 'created_at': '2022-01-23T13:48:59.278947-05:00', 'currency': {'brand_color': '707DB5', 'code': 'ETH', 'id': 'c527c04a-394b-4a44-ae07-19b901ca609c', 'increment': '0.000000000000000001', 'name': 'Ethereum', 'type': 'cryptocurrency'}, 'id': '61eda31b-4e80-46ff-be2d-665b25be782f', 'quantity': '0.003672000000000000', 'quantity_available': '0.003672000000000000', 'quantity_held_for_buy': '0.000000000000000000', 'quantity_held_for_sell': '0.000000000000000000', 'updated_at': '2022-01-30T21:01:30.702584-05:00'},
+{'account_id': '61eb82c8-1307-424d-921f-0a2924b36889', 'cost_bases': [{'currency_id': '1072fc76-1862-41ab-82c2-485837590762', 'direct_cost_basis': '30.169082544609683999', 'direct_quantity': '0.332600000000000000', 'id': '61ed9d8c-af10-4791-8817-5a799eaf5424', 'intraday_cost_basis': '8.503874000000000000', 'intraday_quantity': '0.095800000000000000', 'marked_cost_basis': '0.000000000000000000', 'marked_quantity': '0.000000000000000000'}], 'created_at': '2022-01-23T13:25:16.723652-05:00', 'currency': {'brand_color': '', 'code': 'BSV', 'id': '4a7924c8-d554-47d6-8595-c4e522b0183a', 'increment': '0.000000010000000000', 'name': 'Bitcoin SV', 'type': 'cryptocurrency'}, 'id': '61ed9d8c-061d-45b8-83dd-c40c11008e17', 'quantity': '0.332600000000000000', 'quantity_available': '0.332600000000000000', 'quantity_held_for_buy': '0.000000000000000000', 'quantity_held_for_sell': '0.000000000000000000', 'updated_at': '2022-01-30T21:01:21.556474-05:00'},
+{'account_id': '61eb82c8-1307-424d-921f-0a2924b36889', 'cost_bases': [{'currency_id': '1072fc76-1862-41ab-82c2-485837590762', 'direct_cost_basis': '29.804120719674985490', 'direct_quantity': '209.500000000000000000', 'id': '61eb82dc-621a-49b6-87a2-adc46d92e742', 'intraday_cost_basis': '7.498222370000000000', 'intraday_quantity': '54.430000000000000000', 'marked_cost_basis': '0.000000000000000000', 'marked_quantity': '0.000000000000000000'}], 'created_at': '2022-01-21T23:06:52.189655-05:00', 'currency': {'brand_color': 'BEA649', 'code': 'DOGE', 'id': 'c6996ebc-2f9b-443a-b2c2-7ddf02e0ef3a', 'increment': '0.010000000000000000', 'name': 'Dogecoin', 'type': 'cryptocurrency'}, 'id': '61eb82dc-388e-48ed-ba5c-e1927da4d2a2', 'quantity': '209.500000000000000000', 'quantity_available': '209.500000000000000000', 'quantity_held_for_buy': '0.000000000000000000', 'quantity_held_for_sell': '0.000000000000000000', 'updated_at': '2022-01-30T19:47:08.123378-05:00'}]

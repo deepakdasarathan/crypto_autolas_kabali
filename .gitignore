@@ -2,6 +2,9 @@
 #  http://jenkins-ci.org/
 #  https://wiki.jenkins-ci.org/display/JENKINS/Administering+Jenkins
 
+.DS_Store
 .idea/
+src/.DS_Store
 venv/
-resources/data.json
+src/resources/data.json
+
