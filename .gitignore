@@ -7,4 +7,6 @@
 src/.DS_Store
 venv/
 src/resources/data.json
+src/main/__pycache__/
+
 
