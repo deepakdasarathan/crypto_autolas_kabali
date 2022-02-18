@@ -185,11 +185,15 @@ def buy_trade_logic(symbol, quote, high_price):
         get_signals(symbol, quote, high_price)
 
     if not DRY_RUN:
-        if (percentage_dip > closeness_percentage and
-                (not lowest_outstanding_lot or
-                 (float(lowest_outstanding_lot['cost']) > current_ask_price and
-                  closeness_to_lowest_trade > closeness_percentage)) and
+        buy = False
+        if percentage_dip > closeness_percentage and not lowest_outstanding_lot:
+            buy = True
+        if (bool(lowest_outstanding_lot) and
+                closeness_to_lowest_trade > closeness_percentage and
                 len(OUTSTANDING_TRADE_LOTS[symbol]) < NO_OF_OUTSTANDING_TRADES):
+            buy = True
+
+        if buy:
 
             #    then place an order at ask_price
             available_balance = float(r.load_portfolio_profile()['equity'])
@@ -253,7 +257,7 @@ def get_volatility_percentage_latest(symbol):
     outstanding_lots = OUTSTANDING_TRADE_LOTS[symbol]
     index = len(outstanding_lots)
     if index < len(PERCENTAGES):
-        return PERCENTAGES[index-1]
+        return PERCENTAGES[index - 1]
     else:
         return PERCENTAGES[-1]
 
@@ -299,8 +303,9 @@ def sell_trade_logic_close_all(symbol, quote):
                     else:
                         print_state()
         else:
-            print("New Strategy Sell:", symbol, "Quantity not found. Cleanup coin lot")
-            remove_coin(symbol)
+            if math.isclose(quantity, 0.0):
+                print("New Strategy Sell:", symbol, "Quantity not found. Cleanup coin lot")
+                remove_coin(symbol)
 
 
 def sell_trade_logic(symbol, current_quote):
@@ -374,7 +379,12 @@ def crypto_trading_logic(symbol):
 
 
 def login_to_robinhood(email, password):
-    r.login(username=email, password=password, store_session=True, pickle_name="aarthika")
+    try:
+        r.login(username=email, password=password, store_session=True, pickle_name="aarthika")
+    except Exception as e:
+        print(e)
+        time.sleep(10)
+        return
 
 
 def print_signals(symbol, current_quote, percentage_dip, percentage_up, high_price, closeness):
@@ -508,7 +518,7 @@ if __name__ == '__main__':
             crypto_trading_logic(crypto)
         time.sleep(1)
         run_count = run_count + 1
-        if run_count % 10 == 0:
+        if run_count % 50 == 0:
             print("Run count:", run_count)
             print_state()
         else:
