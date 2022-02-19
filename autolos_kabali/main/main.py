@@ -15,8 +15,8 @@ from termcolor import colored
 
 _email = os.environ.get('ROBINHOOD_EMAIL')
 _password = os.environ.get('ROBINHOOD_PASSWORD')
-DRY_RUN = False
-VERBOSE = False
+DRY_RUN = True
+VERBOSE = True
 MAX_RETRIES = 100
 STARTING_AMOUNT = 1.0
 STARTING_PERCENTAGE = 1.0

@@ -4,9 +4,9 @@
 
 .DS_Store
 .idea/
-src/.DS_Store
+autolos_kabali/.DS_Store
 venv/
-src/resources/data.json
-src/main/__pycache__/
+autolos_kabali/resources/data.json
+autolos_kabali/main/__pycache__/
 
 

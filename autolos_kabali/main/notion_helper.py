@@ -3,7 +3,6 @@
 
 import os.path
 from notion_client import Client
-from pprint import pprint
 
 NOTION_PAGES = {
     "BCH": "0729e4f71ccf41a0b768b7e8d2e2b03c",
