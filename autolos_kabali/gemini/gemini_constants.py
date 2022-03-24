@@ -14,17 +14,25 @@ GEMINI_SECRET_KEY = os.environ.get('GEMINI_SECRET_KEY')
 GEMINI_DRY_RUN = False
 GEMINI_VERBOSE = False
 GEMINI_MAX_RETRIES = 100
-GEMINI_NO_OF_OUTSTANDING_TRADES = 6
-GEMINI_CRYPTO_LIST = ["axsusd",
-                      "shibusd",
-                      "uniusd",
+GEMINI_NO_OF_OUTSTANDING_TRADES = 20
+GEMINI_CRYPTO_LIST = ["btcusd",
+                      "ethusd",
+                      "bchusd",
+                      "ltcusd",
+                      "lunausd",
+                      "solusd",
+                      "axsusd",
                       "linkusd",
-                      "maticusd",
-                      "ftmusd",
-                      "grtusd",
+                      "uniusd",
                       "sushiusd",
+                      "sandusd",
+                      "manausd",
+                      "ftmusd",
+                      "maticusd",
                       "batusd",
-                      "manausd"]
+                      "grtusd",
+                      "dogeusd",
+                      "shibusd"]
 
 GEMINI_OUTSTANDING_TRADE_LOTS_FILE = "outstanding_lots_gemini"
 
@@ -33,20 +41,38 @@ if os.path.exists(GEMINI_OUTSTANDING_TRADE_LOTS_FILE):
 else:
     GEMINI_OUTSTANDING_TRADE_LOTS = defaultdict(list)
 
-GEMINI_PERCENTAGES = [0.9,
-                      1.17,
-                      1.521,
-                      1.9773,
-                      2.57049,
-                      3.341637,
-                      4.3441281]
-GEMINI_PURCHASE_AMOUNTS = [0.5,
-                           1.0,
-                           2.0,
+GEMINI_PERCENTAGES = [1.0,
+                      1.0,
+                      1.5,
+                      1.5,
+                      2.0,
+                      2.0,
+                      2.5,
+                      2.5,
+                      2.5,
+                      5.0]
+
+GEMINI_SELL_PERCENTAGES = [3.0,
+                           3.0,
+                           3.5,
+                           3.5,
                            4.0,
-                           8.0,
-                           16.0,
-                           32.0]
+                           5.0,
+                           4.0,
+                           4.5,
+                           4.5,
+                           5.0]
+
+GEMINI_PURCHASE_AMOUNTS = [5.0,
+                           10.0,
+                           15.0,
+                           20.0,
+                           40.0,
+                           80.0,
+                           80.0,
+                           100.0,
+                           150.0,
+                           200.0]
 
 GEMINI_LOT_STATS = PrettyTable()
 GEMINI_LOT_STATS.field_names = ["Coin",
@@ -58,8 +84,9 @@ GEMINI_LOT_STATS.field_names = ["Coin",
 
 GEMINI_QUOTE_STATS = PrettyTable()
 GEMINI_QUOTE_STATS.field_names = ["Coin",
-                                  "Ask",
                                   "Bid",
+                                  "Ask",
+                                  "Spread",
                                   "High",
                                   "Low",
                                   "Open",
@@ -70,8 +97,10 @@ GEMINI_BREAK_EVEN_AND_PROFIT_STATS.field_names = ["Coin",
                                                   "Amount",
                                                   "Quantity",
                                                   "Cost",
+                                                  "Cost RT",
                                                   "Bid",
                                                   "Sell @",
+                                                  "Sell @ RT",
                                                   "Ask",
                                                   "Buy @",
                                                   "% Break Even"]

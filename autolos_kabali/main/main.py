@@ -15,8 +15,8 @@ from termcolor import colored
 
 _email = os.environ.get('ROBINHOOD_EMAIL')
 _password = os.environ.get('ROBINHOOD_PASSWORD')
-DRY_RUN = True
-VERBOSE = True
+DRY_RUN = False
+VERBOSE = False
 MAX_RETRIES = 100
 STARTING_AMOUNT = 1.0
 STARTING_PERCENTAGE = 1.0
@@ -26,22 +26,18 @@ VOLATILITY_PERCENTAGE = 1.0
 CLOSENESS_PERCENTAGE = 2.5
 DIP_PERCENTAGE = 1.0
 HIGH_HISTORICAL_WINDOW = 24
-NO_OF_OUTSTANDING_TRADES = 6
+NO_OF_OUTSTANDING_TRADES = 9
 CRYPTO_LIST = ["BCH", "BSV", "BTC", "DOGE", "ETC", "ETH", "LTC"]
 NEW_STRATEGY = ["BCH", "BSV", "BTC", "DOGE", "ETC", "ETH", "LTC"]
+BUY_ONLY = ["BSV", "ETC"]
 OUTSTANDING_TRADE_LOTS = defaultdict(list)
 OUTSTANDING_TRADE_LOTS_FILE = "outstanding_lots"
-OLD_PERCENTAGES = [0.9, 1.0125, 1.1390625, 1.281445313, 1.441625977, 1.621829224,
-                   1.824557877, 2.052627611, 2.309206063, 2.59785682]
-NEW_PERCENTAGES = [0.9, 1.17, 1.521, 1.9773, 2.57049, 3.341637]
-PERCENTAGES = NEW_PERCENTAGES
-OLD_PURCHASE_AMOUNTS = [1.0, 1.4, 1.96, 2.75, 3.5, 7.0, 14.0, 28.0, 56.0, 112.0]
-NEW_PURCHASE_AMOUNTS = [10.0, 20.0, 40.0, 80.0, 160.0, 320.0]
-PURCHASE_AMOUNTS = NEW_PURCHASE_AMOUNTS
+PERCENTAGES = [1, 1.5, 1.75, 2, 2.5, 3.5, 4.5, 5, 5]
+PURCHASE_AMOUNTS = [1.0, 2.0, 5.0, 10.0, 20.0, 40.0, 80.0, 160.0, 320.0]
 lot_stats = PrettyTable()
 lot_stats.field_names = ["Coin", "Amount", "Cost", "Quantity", "Trade Id", "Order Placed"]
 quote_stats = PrettyTable()
-quote_stats.field_names = ["Coin", "High 24H", "Ask", "Bid", "Mark", "High", "Low", "Open", "% Dip High",
+quote_stats.field_names = ["Coin", "High 24H", "Bid", "Ask", "Spread", "Mark", "High", "Low", "Open", "% Dip High",
                            "% Up Avg. C", "% Close Low"]
 break_even_and_profit_stats = PrettyTable()
 break_even_and_profit_stats.field_names = ["Coin", "Total Amount", "Total Quantity", "Average Cost",
@@ -198,8 +194,9 @@ def buy_trade_logic(symbol, quote, high_price):
             #    then place an order at ask_price
             available_balance = float(r.load_portfolio_profile()['equity'])
             if float(trading_amount_dollars) > available_balance:
-                print("Buy:", symbol, "Insufficient funds, Available Balance:", available_balance,
-                      "Trading Amount:", trading_amount_dollars, "Current Ask Price:", current_ask_price)
+                if VERBOSE:
+                    print("Buy:", symbol, "Insufficient funds, Available Balance:", available_balance,
+                          "Trading Amount:", trading_amount_dollars, "Current Ask Price:", current_ask_price)
                 return
 
             placed_buy_order = r.order_buy_crypto_limit_by_price(symbol, trading_amount_dollars,
@@ -308,25 +305,26 @@ def sell_trade_logic_close_all(symbol, quote):
                 remove_coin(symbol)
 
 
-def sell_trade_logic(symbol, current_quote):
+def sell_trade_logic_last_trade(symbol, current_quote):
     current_bid_price = float(current_quote['bid_price'])
 
     lowest_outstanding_lot = get_lowest_outstanding_trade(symbol)
     percentage_up = 0.0
     if bool(lowest_outstanding_lot):
         # TODO change this
-        percentage_up = ((current_bid_price - float(
-            lowest_outstanding_lot['cost'])) / current_bid_price) * 100
+        percentage_up = percentage_break_even(float(
+            lowest_outstanding_lot['cost']), current_bid_price)
+
+    volatility_percentage = get_volatility_percentage_latest(symbol)
 
     if not DRY_RUN:
         if (bool(lowest_outstanding_lot) and
-                percentage_up > VOLATILITY_PERCENTAGE):
+                percentage_up > volatility_percentage):
             #   then place a sell order at bid_price
             placed_sell_order = r.order_sell_crypto_limit(symbol, float(lowest_outstanding_lot['quantity']),
                                                           r.helper.round_price(current_bid_price))
             print("Sell:", symbol, "Lowest lot", lowest_outstanding_lot)
-            if bool(lowest_outstanding_lot):
-                print("Sell:", symbol, "Percentage Up", percentage_up)
+            print("Sell:", symbol, "Percentage Up", percentage_up)
             print("Sell:", symbol, "Order placed", placed_sell_order)
 
             filled_sell_order, canceled = check_order_executed_or_cancel(symbol, "Sell", placed_sell_order['id'])
@@ -334,6 +332,8 @@ def sell_trade_logic(symbol, current_quote):
             # ensure cancel went through
             if not canceled:
                 remove_matched_trade(symbol, lowest_outstanding_lot)
+            else:
+                print_state()
 
 
 def crypto_trading_logic(symbol):
@@ -345,7 +345,8 @@ def crypto_trading_logic(symbol):
         high_price = get_high_price(symbol, current_quote)
 
         # Run the buy algorithm
-        buy_trade_logic(symbol, current_quote, high_price)
+        if symbol in BUY_ONLY:
+            buy_trade_logic(symbol, current_quote, high_price)
 
         # get the current quote for the crypto: uptodate
         current_quote = r.get_crypto_quote(symbol)
@@ -354,7 +355,7 @@ def crypto_trading_logic(symbol):
         if symbol in NEW_STRATEGY:
             sell_trade_logic_close_all(symbol, current_quote)
         else:
-            sell_trade_logic(symbol, current_quote)
+            sell_trade_logic_close_all(symbol, current_quote)
 
     except TypeError as e:
         print(e)
@@ -396,8 +397,9 @@ def print_signals(symbol, current_quote, percentage_dip, percentage_up, high_pri
         close_to_lowest = colored(str(closeness), 'white', 'on_red')
     quote_stats.add_row([symbol,
                          round(float(high_price), 4),
-                         round(float(current_quote['ask_price']), 4),
                          round(float(current_quote['bid_price']), 4),
+                         round(float(current_quote['ask_price']), 4),
+                         round(float(current_quote['ask_price']) - float(current_quote['bid_price']), 4),
                          round(float(current_quote['mark_price']), 4),
                          round(float(current_quote['high_price']), 4),
                          round(float(current_quote['low_price']), 4),
@@ -468,22 +470,20 @@ def print_state(print_stdout=True):
                 total_crypto_bought_dollars = total_crypto_bought_dollars + float(lot['amount'])
 
             if len(OUTSTANDING_TRADE_LOTS[c]) > 0:
-                if print_stdout:
-                    print(lot_stats.get_string())
-                lot_stats.clear_rows()
+                lot_stats.add_row(['*' * 6, '*' * 9, '*' * 18, '*' * 13, '*' * 40, '*' * 34])
 
         cash_balance = float(r.load_portfolio_profile()['equity'])
         total_equity = total_crypto_bought_dollars + cash_balance
         if print_stdout:
+            print(lot_stats.get_string())
             print("\nTotal $$s spent to buy crypto:", round(float(total_crypto_bought_dollars), 2),
                   "Available Cash $$:", round(float(cash_balance), 2),
                   "Total equity $$s:", round(float(total_equity), 2))
             print()
             print(break_even_and_profit_stats.get_string())
-        break_even_and_profit_stats.clear_rows()
-
-        if print_stdout:
             print(quote_stats.get_string())
+        lot_stats.clear_rows()
+        break_even_and_profit_stats.clear_rows()
         quote_stats.clear_rows()
     except TypeError as e:
         print(e)

@@ -1,33 +1,43 @@
 # Gemini Trading bot
 # Author: Deepak Dasarathan
-
+import math
 from pprint import pformat
 
 from autolos_kabali.gemini.gemini_constants import *
 from autolos_kabali.gemini.gemini_helper import insert_recent_trade, place_and_check_order_executed_or_cancel, \
-    create_trade_details, get_signals, get_account_balance, evaluate_exponential_trading_closeness_values
+    create_trade_details, get_signals, get_account_balance, get_tick_size, get_quote_increment,\
+    evaluate_exponential_trading_closeness_values
 from autolos_kabali.gemini.gemini_stats import print_state
 
 
-def gemini_round(price):
-    price = float(price)
-    if price <= 1e-2:
-        return_price = round(price, 6)
-    elif price < 1e0:
-        return_price = round(price, 4)
+def gemini_round(symbol, value):
+    value_f = float(value)
+    tick_size = get_tick_size(symbol)
+    if math.isclose(tick_size, 1e-8):
+        return_value = round(value_f, 8)
+    elif math.isclose(tick_size, 1e-6):
+        return_value = round(value_f, 6)
+    elif math.isclose(tick_size, 1e-5):
+        return_value = round(value_f, 5)
     else:
-        return_price = round(price, 2)
+        return_value = round(value_f, 2)
 
-    return return_price
+    return return_value
 
 
-def aggresive_ask(ask):
+def aggressive_ask(symbol, ask):
     if '.' in ask:
         exponent, mantissa = ask.split('.')
+        quote_increment = get_quote_increment(symbol)
+        mantissa_size = int(round(1/quote_increment))
+        mantissa_max = mantissa_size - 1
+        mantissa_len = len(str(mantissa_max))
         mantissa_int = int(mantissa)
         if mantissa_int > 0:
-            mantissa_int = mantissa_int - 1
-            return exponent + '.' + str(mantissa_int).zfill(len(mantissa))
+            aggressive_mantissa = int(float('0.' + mantissa) * mantissa_size) - 1
+            return exponent + '.' + str(aggressive_mantissa).zfill(mantissa_len)
+        elif mantissa_int == 0:
+            return str(int(exponent) - 1) + '.' + str(mantissa_max).zfill(mantissa_len)
     return ask
 
 
@@ -53,11 +63,13 @@ def buy_trade_logic(symbol):
                       "Trading Amount:", trading_amount_dollars, "Current Ask Price:", signal.ask)
                 return
 
-            order_quantity = trading_amount_dollars / float(signal.ask)
+            aggressive_ask_f = aggressive_ask(symbol, signal.ask)
+            print("Buy:", symbol, "Current Ask Price:", signal.ask, "Aggressive ask", aggressive_ask_f)
+            order_quantity = trading_amount_dollars / float(aggressive_ask_f)
             buy_order = place_and_check_order_executed_or_cancel(symbol,
-                                                                 gemini_round(order_quantity),
+                                                                 gemini_round(symbol, order_quantity),
                                                                  "buy",
-                                                                 aggresive_ask(signal.ask))
+                                                                 aggressive_ask_f)
 
             executed_amount = float(buy_order['executed_amount'])
             if executed_amount > 0.0:

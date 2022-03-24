@@ -37,6 +37,11 @@ def insert_recent_trade(symbol, trade_details):
     pickle.dump(GEMINI_OUTSTANDING_TRADE_LOTS, open(GEMINI_OUTSTANDING_TRADE_LOTS_FILE, 'wb'))
 
 
+def remove_recent_trade(symbol, trade_details):
+    GEMINI_OUTSTANDING_TRADE_LOTS[symbol].remove(trade_details)
+    pickle.dump(GEMINI_OUTSTANDING_TRADE_LOTS, open(GEMINI_OUTSTANDING_TRADE_LOTS_FILE, 'wb'))
+
+
 def remove_coin(symbol):
     del GEMINI_OUTSTANDING_TRADE_LOTS[symbol]
     pickle.dump(GEMINI_OUTSTANDING_TRADE_LOTS, open(GEMINI_OUTSTANDING_TRADE_LOTS_FILE, 'wb'))
@@ -81,13 +86,13 @@ def evaluate_exponential_trading_closeness_values(symbol):
     return float(trading_amount), float(closeness_percentage)
 
 
-def get_volatility_percentage_latest(symbol):
+def get_sell_volatility_percentage_latest(symbol):
     outstanding_lots = GEMINI_OUTSTANDING_TRADE_LOTS[symbol]
     index = len(outstanding_lots)
     if index < len(GEMINI_PERCENTAGES):
-        return GEMINI_PERCENTAGES[index - 1]
+        return GEMINI_SELL_PERCENTAGES[index - 1]
     else:
-        return GEMINI_PERCENTAGES[-1]
+        return GEMINI_SELL_PERCENTAGES[-1]
 
 
 def get_account_balance():
@@ -109,6 +114,16 @@ def get_account_balance():
 def get_min_quantity(symbol):
     symbol_details, _ = g.get_symbol_details(symbol, True)
     return float(symbol_details['min_order_size'])
+
+
+def get_tick_size(symbol):
+    symbol_details, _ = g.get_symbol_details(symbol, True)
+    return symbol_details['tick_size']
+
+
+def get_quote_increment(symbol):
+    symbol_details, _ = g.get_symbol_details(symbol, True)
+    return symbol_details['quote_increment']
 
 
 def get_current_quote(symbol):
@@ -167,20 +182,24 @@ def get_signals(symbol):
 
     closeness_to_lowest_trade = 0.0
     percentage_up = 0.0
+    percentage_up_from_last_trade = 0.0
     total_amount = 0.0
     total_cost = 0.0
     total_quantity = 0.0
     break_even = 0.0
-
-    if bool(lowest_outstanding_lot):
-        closeness_to_lowest_trade = percentage_dip_expr(lowest_outstanding_lot['cost'], ask_price)
+    sell_at_recent_trade = 0.0
 
     if len(GEMINI_OUTSTANDING_TRADE_LOTS[symbol]) > 0:
         total_amount, total_cost, total_quantity, break_even = evaluate_break_even_and_profit(symbol, quote)
         percentage_up = percentage_break_even(total_cost, bid_price)
+        percentage_up_from_last_trade = percentage_break_even(lowest_outstanding_lot['cost'], bid_price)
 
-    volatility_percentage = get_volatility_percentage_latest(symbol)
+    volatility_percentage = get_sell_volatility_percentage_latest(symbol)
     sell_at = total_cost * (1.0 + volatility_percentage / 100.0)
+
+    if bool(lowest_outstanding_lot):
+        closeness_to_lowest_trade = percentage_dip_expr(lowest_outstanding_lot['cost'], ask_price)
+        sell_at_recent_trade = float(lowest_outstanding_lot['cost']) * (1.0 + volatility_percentage / 100.0)
 
     trading_amount_dollars, closeness_percentage = evaluate_exponential_trading_closeness_values(symbol)
 
@@ -199,11 +218,13 @@ def get_signals(symbol):
                            closeness_to_lowest_trade,
                            percentage_dip,
                            percentage_up,
+                           percentage_up_from_last_trade,
                            total_amount,
                            total_cost,
                            total_quantity,
                            break_even,
                            sell_at,
+                           sell_at_recent_trade,
                            buy_at,
                            lowest_outstanding_lot)
     return signal
@@ -260,6 +281,10 @@ def place_and_check_order_executed_or_cancel(symbol, quantity, side, price):
     min_quantity = get_min_quantity(symbol)
     if side == "buy" and quantity < min_quantity:
         quantity = min_quantity
+    if side == "sell" and quantity < min_quantity:
+        print(side + ":", symbol, "Not sufficient quantity to sell", quantity, "needed", min_quantity)
+        return None
+
     # Place an order
     order_status, _ = g.order(symbol, quantity, side, price=price, options=["maker-or-cancel"], jsonify=True)
     order_id = order_status['order_id']

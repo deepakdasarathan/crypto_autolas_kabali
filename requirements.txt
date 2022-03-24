@@ -1,14 +1,22 @@
+anyio==3.5.0
 certifi==2021.10.8
 cffi==1.15.0
+chardet==4.0.0
 charset-normalizer==2.0.11
 cryptography==36.0.1
+h11==0.12.0
+httpcore==0.14.7
+httpx==0.22.0
 idna==3.3
+notion-client==0.9.0
 prettytable==3.0.0
 pycparser==2.21
 pyotp==2.6.0
 python-dotenv==0.19.2
 requests==2.27.1
+rfc3986==1.5.0
 robin-stocks @ git+https://github.com/jmfernandes/robin_stocks.git@8359444cb75e050662520aebef8a9c1bdb26bf1c
+sniffio==1.2.0
+termcolor==1.1.0
 urllib3==1.26.8
 wcwidth==0.2.5
-termcolor~=1.1.0
